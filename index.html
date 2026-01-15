@@ -1,0 +1,72 @@
+
+    <!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CONDOMÍNIO RESIDENCIAL PALMEIRAS</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+        <style>
+            body { background: #1a1a1a; color: white; font-family: sans-serif; margin: 0; text-align: center; }
+            #lock-screen { position: fixed; inset: 0; background: #111; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+            .login-box { background: #222; padding: 30px; border-radius: 10px; width: 85%; max-width: 400px; border: 1px solid #444; }
+            input { padding: 15px; width: 85%; font-size: 18px; margin-bottom: 20px; border-radius: 5px; border: none; }
+            #content { display: none; flex-direction: column; align-items: center; width: 100%; }
+            .header { padding: 20px; background: #222; width: 100%; border-bottom: 3px solid #f1c40f; box-sizing: border-box; }
+            canvas { width: 95%; max-width: 900px; margin: 10px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); background: white; }
+            .loading-info { color: #f1c40f; margin: 20px; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+    <div id="lock-screen">
+        <div class="login-box">
+            <h2 style="color:#f1c40f">PRESTAÇÃO DE CONTAS</h2>
+            <h3>CONDOMÍNIO RESIDENCIAL PALMEIRAS</h3>
+            <input type="password" id="pass" placeholder="Senha">
+            <button onclick="check()" style="padding:15px 30px; background:#27ae60; color:white; border:none; cursor:pointer; font-weight:bold; width:90%;">ENTRAR</button>
+        </div>
+    </div>
+    <div id="content">
+        <div class="header"><h1>PRESTAÇÃO DE CONTAS</h1><h2>CONDOMÍNIO RESIDENCIAL PALMEIRAS</h2><p>CNPJ- 54.029.184/0001-41</p></div>
+        <div id="viewer"></div>
+    </div>
+    <script>
+        const docs = ['doc_01_82a994a5.pdf', 'doc_02_7106fe31.pdf', 'doc_03_c8b6aad8.pdf', 'doc_04_bcb1525f.pdf', 'doc_05_bf10cb39.pdf', 'doc_06_6eb63354.pdf', 'doc_07_21460b23.pdf', 'doc_08_b942a693.pdf', 'doc_09_c1b1f41e.pdf', 'doc_10_7eda5411.pdf', 'doc_11_a9e73451.pdf', 'doc_12_aa24023b.pdf', 'doc_13_bce8942a.pdf', 'doc_14_adb53e3e.pdf', 'doc_15_0d2534a4.pdf', 'doc_16_69293ba1.pdf', 'doc_17_f337a3ed.pdf', 'doc_18_2ff1b680.pdf', 'doc_19_cbfe544d.pdf', 'doc_20_b70e33c5.pdf', 'doc_21_e02140a1.pdf', 'doc_22_2c5a955a.pdf', 'doc_23_affda2c4.pdf', 'doc_24_20d6576b.pdf', 'doc_25_0ab18b87.pdf', 'doc_26_0ebbfb8e.pdf', 'doc_27_2d62d34e.pdf', 'doc_28_dc715437.pdf', 'doc_29_d518f3ae.pdf', 'doc_30_1406d1ed.pdf', 'doc_31_75d8e244.pdf', 'doc_32_dc051452.pdf', 'doc_33_4c2271da.pdf', 'doc_34_2576147e.pdf', 'doc_35_a1e4e4f7.pdf', 'doc_36_ecdb4338.pdf', 'doc_37_6bda0308.pdf', 'doc_38_5ccabb54.pdf', 'doc_39_1a975f7b.pdf'];
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        function check() {
+            if(document.getElementById('pass').value === 'Focos@2026') {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('content').style.display = 'flex';
+                renderAll();
+            } else { alert('Senha incorreta!'); }
+        }
+
+        async function renderAll() {
+            const container = document.getElementById('viewer');
+            for (const file of docs) {
+                const info = document.createElement('div');
+                info.className = 'loading-info';
+                info.innerText = 'Carregando documento...';
+                container.appendChild(info);
+                
+                try {
+                    const pdf = await pdfjsLib.getDocument(file).promise;
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const viewport = page.getViewport({ scale: 2.0 });
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        await page.render({ canvasContext: context, viewport: viewport }).promise;
+                        container.appendChild(canvas);
+                    }
+                    info.remove();
+                } catch (e) { info.innerText = 'Erro ao carregar arquivo.'; }
+            }
+        }
+    </script>
+    </body>
+    </html>
